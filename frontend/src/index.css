@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CogniCare Design System - Accessible Medical Interface */
+
+@layer base {
+  :root {
+    /* Base Colors - Calming Medical Palette */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 27%;
+
+    /* Card Components */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+
+    /* Interactive Elements */
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    /* Primary - Medical Trust Blue */
+    --primary: 208 100% 47%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 208 100% 97%;
+
+    /* Secondary - Reassuring Green */
+    --secondary: 162 73% 46%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-soft: 162 73% 96%;
+
+    /* Muted Elements */
+    --muted: 210 20% 95%;
+    --muted-foreground: 215 15% 47%;
+
+    /* Accent - Warm Orange */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 25 95% 97%;
+
+    /* Status Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 162 73% 46%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 93% 58%;
+    --warning-foreground: 0 0% 100%;
+
+    /* UI Elements */
+    --border: 215 20% 88%;
+    --input: 215 20% 94%;
+    --ring: 208 100% 47%;
+
+    /* Medical Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(208 100% 67%));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(162 73% 66%));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(25 95% 73%));
+    --gradient-calm: linear-gradient(180deg, hsl(var(--background)), hsl(210 30% 96%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 12px -4px hsl(var(--primary) / 0.1);
+    --shadow-card: 0 8px 24px -8px hsl(215 25% 27% / 0.08);
+    --shadow-floating: 0 16px 40px -12px hsl(var(--primary) / 0.15);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode optimized for medical applications */
+    --background: 215 28% 17%;
+    --foreground: 210 20% 98%;
+
+    --card: 215 25% 20%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 215 25% 20%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 208 100% 67%;
+    --primary-foreground: 215 28% 17%;
+    --primary-soft: 208 100% 12%;
+
+    --secondary: 162 73% 66%;
+    --secondary-foreground: 215 28% 17%;
+    --secondary-soft: 162 73% 12%;
+
+    --muted: 215 25% 23%;
+    --muted-foreground: 215 15% 67%;
+
+    --accent: 25 95% 73%;
+    --accent-foreground: 215 28% 17%;
+    --accent-soft: 25 95% 12%;
+
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 215 28% 17%;
+    --success: 162 73% 66%;
+    --success-foreground: 215 28% 17%;
+    --warning: 45 93% 68%;
+    --warning-foreground: 215 28% 17%;
+
+    --border: 215 25% 25%;
+    --input: 215 25% 23%;
+    --ring: 208 100% 67%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(208 100% 77%));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(162 73% 76%));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(25 95% 83%));
+    --gradient-calm: linear-gradient(180deg, hsl(var(--background)), hsl(215 28% 20%));
+
+    --shadow-soft: 0 4px 12px -4px hsl(0 0% 0% / 0.2);
+    --shadow-card: 0 8px 24px -8px hsl(0 0% 0% / 0.15);
+    --shadow-floating: 0 16px 40px -12px hsl(0 0% 0% / 0.25);
+
+    --sidebar-background: 215 28% 17%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 208 100% 67%;
+    --sidebar-primary-foreground: 215 28% 17%;
+    --sidebar-accent: 215 25% 23%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 215 25% 25%;
+    --sidebar-ring: 208 100% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

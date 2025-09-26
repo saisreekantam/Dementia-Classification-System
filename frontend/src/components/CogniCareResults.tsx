@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
 import { 
   Brain, 
   AlertTriangle, 
@@ -87,7 +88,7 @@ const DOMAIN_INFO = {
 const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onRestart }) => {
   const interpretationConfig = INTERPRETATION_CONFIG[compositeScore.interpretation];
   const Icon = interpretationConfig.icon;
-
+  const navigate = useNavigate();
   // Calculate domain scores
   const domainScores = Object.entries(DOMAIN_INFO).map(([domain, info]) => {
     const domainTests = compositeScore.individualScores.filter(score => score.domain === domain);
@@ -248,6 +249,14 @@ const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onR
                 <Button onClick={onRestart} variant="outline" className="w-full">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Take New Assessment
+                </Button>
+                <Button
+                  onClick={() => navigate('/dashboard')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Back to Dashboard
                 </Button>
               </CardContent>
             </Card>

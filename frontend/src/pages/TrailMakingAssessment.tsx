@@ -10,7 +10,6 @@ interface CirclePosition {
   y: number;
   label: string;
   isConnected: boolean;
-  isNext: boolean;
   isError: boolean;
 }
 
@@ -115,7 +114,6 @@ export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ on
           y: y!,
           label: label,
           isConnected: false,
-          isNext: label === "1",
           isError: false
         });
       }
@@ -242,7 +240,7 @@ export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ on
       // Correct circle clicked
       const updatedCircles = circles.map(circle => {
         if (circle.id === clickedCircle.id) {
-          return { ...circle, isConnected: true, isNext: false };
+          return { ...circle, isConnected: true};
         }
         return { ...circle, isError: false };
       });
@@ -270,12 +268,7 @@ export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ on
       const nextTarget = getNextTarget(clickedCircle.id);
       if (nextTarget) {
         setCurrentTarget(nextTarget);
-        // Update next circle indicator
-        const finalCircles = updatedCircles.map(circle => ({
-          ...circle,
-          isNext: circle.id === nextTarget
-        }));
-        setCircles(finalCircles);
+        setCircles(updatedCircles);
       } else {
         // Test completed
         setCircles(updatedCircles);
@@ -511,10 +504,9 @@ export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ on
                             fill={
                               circle.isError ? "#EF4444" :
                               circle.isConnected ? "#10B981" :
-                              circle.isNext ? "#F59E0B" : "#E5E7EB"
+                              "#E5E7EB"
                             }
                             stroke={
-                              circle.isNext ? "#D97706" : 
                               circle.isConnected ? "#059669" : "#9CA3AF"
                             }
                             strokeWidth="2"
@@ -529,7 +521,7 @@ export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ on
                             fill={
                               circle.isError ? "white" :
                               circle.isConnected ? "white" :
-                              circle.isNext ? "white" : "#374151"
+                               "#374151"
                             }
                           >
                             {circle.label}

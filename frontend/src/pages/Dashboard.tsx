@@ -36,10 +36,7 @@ export const Dashboard = () => {
     } else if (assessmentType === "Stroop Color Test") {
       navigate("/assessment/stroop-color");
     } else {
-      toast({
-        title: "Assessment Starting",
-        description: `Preparing ${assessmentType} assessment with Maya...`,
-      });
+      navigate("/assessment/comprehensive");
     }
   };
 

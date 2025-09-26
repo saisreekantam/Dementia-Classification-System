@@ -106,6 +106,7 @@ export const AssessmentCard = ({
           className="w-full"
         >
           {status === "Available" && "Start Assessment"}
+          {status === "Recommended" && "Start Assesment"}
           {status === "In Progress" && "Continue"}
           {status === "Completed" && "Review Results"}
           {status === "Locked" && "Locked"}

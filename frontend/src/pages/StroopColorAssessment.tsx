@@ -48,7 +48,12 @@ const COLOR_CODES = {
 const PRACTICE_TRIALS = 6;
 const TEST_TRIALS = 20; // 20 trials per condition
 
-export const StroopColorAssessment = () => {
+interface StroopColorAssessmentProps {
+  onComplete?: (results: any) => void;
+  isSequential?: boolean;
+}
+
+export const StroopColorAssessment: React.FC<StroopColorAssessmentProps> = ({ onComplete, isSequential = false }) => {
   const [phase, setPhase] = useState<TestPhase>("intro");
   const [currentStep, setCurrentStep] = useState(0);
   const [currentTrial, setCurrentTrial] = useState(0);
@@ -113,6 +118,23 @@ export const StroopColorAssessment = () => {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  // Handle completion for sequential assessments
+  useEffect(() => {
+    if (phase === "results" && onComplete && isSequential) {
+      const interferenceScore = results.incongruent.averageTime - results.congruent.averageTime;
+      
+      const assessmentResults = {
+        interferenceScore, // Primary metric per finalscore.txt
+        stroopEffect: results.stroopEffect,
+        congruent: results.congruent,
+        incongruent: results.incongruent,
+        completedAt: new Date()
+      };
+      
+      onComplete(assessmentResults);
+    }
+  }, [phase, onComplete, isSequential, results]);
 
   const startTrials = (trialType: 'practice' | 'congruent' | 'incongruent') => {
     setCurrentTrial(0);

@@ -9,8 +9,8 @@ interface AssessmentCardProps {
   description: string;
   icon: LucideIcon;
   duration: string;
-  difficulty: "Easy" | "Medium" | "Hard";
-  status?: "Available" | "In Progress" | "Completed" | "Locked";
+  difficulty: "Easy" | "Medium" | "Hard" | "Comprehensive";
+  status?: "Available" | "In Progress" | "Completed" | "Locked" | "Recommended";
   progress?: number;
   onStart: () => void;
   className?: string;
@@ -30,14 +30,16 @@ export const AssessmentCard = ({
   const difficultyColors = {
     Easy: "bg-success/10 text-success border-success/20",
     Medium: "bg-warning/10 text-warning border-warning/20",
-    Hard: "bg-destructive/10 text-destructive border-destructive/20"
+    Hard: "bg-destructive/10 text-destructive border-destructive/20",
+    Comprehensive: "bg-blue-50 text-blue-700 border-blue-200"
   };
 
   const statusColors = {
     Available: "bg-primary/10 text-primary border-primary/20",
     "In Progress": "bg-accent/10 text-accent border-accent/20",
     Completed: "bg-success/10 text-success border-success/20",
-    Locked: "bg-muted/10 text-muted-foreground border-muted/20"
+    Locked: "bg-muted/10 text-muted-foreground border-muted/20",
+    Recommended: "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-300 font-semibold"
   };
 
   const isDisabled = status === "Locked";

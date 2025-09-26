@@ -41,7 +41,12 @@ const CookieTheftPicture = ({ className }: { className?: string }) => {
   );
 };
 
-export const CookieTheftAssessment = () => {
+interface CookieTheftAssessmentProps {
+  onComplete?: (results: any) => void;
+  isSequential?: boolean;
+}
+
+export const CookieTheftAssessment: React.FC<CookieTheftAssessmentProps> = ({ onComplete, isSequential = false }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -58,7 +63,7 @@ export const CookieTheftAssessment = () => {
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<any>(null);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const showToast = (title: string, description: string, variant: string = "default") => {
     toast({
@@ -86,6 +91,22 @@ export const CookieTheftAssessment = () => {
       }
     };
   }, [isRecording, startTime]);
+
+  // Handle completion for sequential assessments
+  useEffect(() => {
+    if (phase === "results" && onComplete && isSequential) {
+      const assessmentResults = {
+        informationUnits: analysisResult?.informationUnits || 0, // Primary metric per finalscore.txt
+        totalWords: analysisResult?.totalWords || 0,
+        transcript,
+        analysisResult,
+        recordingDuration: duration,
+        completedAt: new Date()
+      };
+      
+      onComplete(assessmentResults);
+    }
+  }, [phase, onComplete, isSequential, analysisResult, transcript, duration]);
 
   // Format duration
   const formatDuration = (seconds: number) => {

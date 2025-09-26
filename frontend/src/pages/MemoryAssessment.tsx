@@ -22,7 +22,12 @@ const numberMap: Record<string, number> = {
   eighteen: 18, nineteen: 19, twenty: 20
 };
 
-export const MemoryAssessment = () => {
+interface MemoryAssessmentProps {
+  onComplete?: (results: any) => void;
+  isSequential?: boolean;
+}
+
+export const MemoryAssessment: React.FC<MemoryAssessmentProps> = ({ onComplete, isSequential = false }) => {
   const [phase, setPhase] = useState<AssessmentPhase>(
     () => (localStorage.getItem("memoryPhase") as AssessmentPhase) || "intro"
   );
@@ -77,6 +82,38 @@ export const MemoryAssessment = () => {
     if (phase === "immediate-recall" || phase === "delayed-recall" || phase === "distraction") {
       setStartTime(new Date());
       setHasRecorded(false);
+    }
+  }, [phase]);
+
+  // Handle completion for sequential assessments
+  useEffect(() => {
+    if (phase === "results" && onComplete && isSequential) {
+      const delayedRecallCount = results.delayedRecall?.filter(word => 
+        WORD_LIST.some(w => w.toLowerCase().includes(word.toLowerCase()) || word.toLowerCase().includes(w.toLowerCase()))
+      ).length || 0;
+
+      const assessmentResults = {
+        delayedRecall: {
+          correctWords: delayedRecallCount,
+          totalWords: results.delayedRecall?.length || 0,
+          wordList: results.delayedRecall || []
+        },
+        immediateRecall: {
+          correctWords: results.immediateRecall?.filter(word => 
+            WORD_LIST.some(w => w.toLowerCase().includes(word.toLowerCase()) || word.toLowerCase().includes(w.toLowerCase()))
+          ).length || 0,
+          totalWords: results.immediateRecall?.length || 0,
+          wordList: results.immediateRecall || []
+        },
+        distractionTask: {
+          numbers: results.distractionNumbers || [],
+          accuracy: scores.distractionTask || 0
+        },
+        scores,
+        completedAt: new Date()
+      };
+      
+      onComplete(assessmentResults);
     }
   }, [phase]);
   useEffect(() => {
@@ -599,13 +636,15 @@ export const MemoryAssessment = () => {
                       )}
                     </div>
 
-                    <button
-                      onClick={restartAssessment}
-                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-4 rounded-lg transition-colors mt-3 flex items-center justify-center gap-2 border border-gray-300"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      Restart Assessment
-                    </button>
+                    {!isSequential && (
+                      <button
+                        onClick={restartAssessment}
+                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-4 rounded-lg transition-colors mt-3 flex items-center justify-center gap-2 border border-gray-300"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        Restart Assessment
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

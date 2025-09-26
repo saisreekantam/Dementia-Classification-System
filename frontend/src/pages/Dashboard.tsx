@@ -23,7 +23,9 @@ export const Dashboard = () => {
   const { user, logout } = useAuth();
 
   const handleStartAssessment = (assessmentType: string) => {
-    if (assessmentType === "Memory Recall Test") {
+    if (assessmentType === "Complete Assessment Battery") {
+      navigate("/assessment/comprehensive");
+    } else if (assessmentType === "Memory Recall Test") {
       navigate("/assessment/memory");
     } else if (assessmentType === "Cookie Theft Picture") {
       navigate("/assessment/cookie-theft");
@@ -42,6 +44,14 @@ export const Dashboard = () => {
   };
 
   const assessments = [
+    {
+      title: "Complete Assessment Battery",
+      description: "Take all 5 cognitive assessments in sequence and get your comprehensive CogniCare Cognitive Composite Score (CCS) with detailed clinical insights.",
+      icon: Brain,
+      duration: "35-50 min",
+      difficulty: "Comprehensive" as const,
+      status: "Recommended" as const,
+    },
     {
       title: "Memory Recall Test",
       description: "Assess your short-term and long-term memory with word list exercises. Maya will guide you through immediate and delayed recall tasks.",

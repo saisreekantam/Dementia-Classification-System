@@ -14,6 +14,7 @@ import { CookieTheftAssessment } from "./pages/CookieTheftAssessment";
 import { VerbalFluencyAssessment } from "./pages/VerbalFluencyAssessment";
 import { TrailMakingAssessment } from "./pages/TrailMakingAssessment";
 import { StroopColorAssessment } from "./pages/StroopColorAssessment";
+import ComprehensiveAssessment from "./pages/ComprehensiveAssessment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <StroopColorAssessment />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/assessment/comprehensive" 
+              element={
+                <ProtectedRoute>
+                  <ComprehensiveAssessment />
                 </ProtectedRoute>
               } 
             />

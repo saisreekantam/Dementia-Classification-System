@@ -39,7 +39,12 @@ interface TestResults {
   derivedScore: number; // B - A time difference
 }
 
-export const TrailMakingAssessment = () => {
+interface TrailMakingAssessmentProps {
+  onComplete?: (results: any) => void;
+  isSequential?: boolean;
+}
+
+export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ onComplete, isSequential = false }) => {
   const [phase, setPhase] = useState<TestPhase>("intro");
   const [currentStep, setCurrentStep] = useState(0);
   const [isTestActive, setIsTestActive] = useState(false);
@@ -174,6 +179,22 @@ export const TrailMakingAssessment = () => {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  // Handle completion for sequential assessments
+  useEffect(() => {
+    if (phase === "results" && onComplete && isSequential) {
+      const assessmentResults = {
+        partATime: results.partA?.timeToComplete || 0,
+        partBTime: results.partB?.timeToComplete || 0,
+        derivedScore: results.partB?.timeToComplete || 0, // Primary metric per finalscore.txt
+        partA: results.partA,
+        partB: results.partB,
+        completedAt: new Date()
+      };
+      
+      onComplete(assessmentResults);
+    }
+  }, [phase, onComplete, isSequential, results]);
 
   const startTest = () => {
     setIsTestActive(true);

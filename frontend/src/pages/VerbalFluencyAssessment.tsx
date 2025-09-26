@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, RotateCcw, Clock, Play, Pause, Mic, MicOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, Clock, Play, Pause } from "lucide-react";
 import { MayaAvatar } from "@/components/MayaAvatar";
 
 // Test configurations based on verbal.txt specifications
@@ -14,7 +14,7 @@ const PHONEMIC_LETTERS = [
   { letter: "S", instruction: "Say words that begin with the letter S", examples: ["sun", "story", "street"] }
 ];
 
-type TestPhase = 
+type TestPhase =
   | "intro"
   | "instructions"
   | "semantic-animals"
@@ -49,13 +49,17 @@ interface AnalysisResults {
   temporalDistribution: number[];
 }
 
-export const VerbalFluencyAssessment = () => {
+interface VerbalFluencyAssessmentProps {
+  onComplete?: (results: any) => void;
+  isSequential?: boolean;
+}
+
+export const VerbalFluencyAssessment: React.FC<VerbalFluencyAssessmentProps> = ({ onComplete, isSequential = false }) => {
   const [phase, setPhase] = useState<TestPhase>("intro");
   const [currentStep, setCurrentStep] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [isTestActive, setIsTestActive] = useState(false);
-  const [startTime, setStartTime] = useState<Date | null>(null);
   const [testStartTime, setTestStartTime] = useState<Date | null>(null);
   const [hasRecorded, setHasRecorded] = useState(false);
   const [toast, setToast] = useState<{title: string; description: string; variant?: string} | null>(null);
@@ -87,7 +91,7 @@ export const VerbalFluencyAssessment = () => {
   const mayaDialogue = {
     intro: "Hi! I'm Maya, and today we'll be doing a Verbal Fluency Test. This assessment helps us understand your language abilities and cognitive flexibility. It's like a word game where you'll name words from different categories and starting letters!",
     instructions: "Here's how it works: I'll give you a category or a letter, and you'll have 60 seconds to say as many words as you can think of. Speak clearly, and don't worry about repeating words - just say whatever comes to mind!",
-    "semantic-animals": "Great! Let's start with animals. You have 60 seconds to name as many animals as you can think of. Ready? I'll start the timer when you begin speaking.",
+    "semantic-animals": "Great! Let's start with animals. You have 60 seconds to name as many animals as you can think of. Ready? The timer will begin when you press start.",
     "semantic-fruits": "Excellent work! Now let's try fruits. Name as many fruits as you can think of in the next 60 seconds.",
     "phonemic-f": "Perfect! Now we'll switch to letter sounds. Say as many words as you can that begin with the letter F. Remember, no proper names or repeated words with different endings.",
     "phonemic-a": "Great job! Now words that begin with the letter A. You have another 60 seconds.",
@@ -118,8 +122,41 @@ export const VerbalFluencyAssessment = () => {
     };
   }, [timeRemaining, isTestActive]);
 
+  // Handle completion for sequential assessments
+  useEffect(() => {
+    if (phase === "results" && onComplete && isSequential) {
+      // Calculate total correct words from all categories (semantic animals is primary)
+      const semanticAnimalsCount = analysis.semanticAnimals?.validWords || 0;
+      const totalWords = Object.values(analysis).reduce((sum, result) => sum + (result?.validWords || 0), 0);
+      
+      const assessmentResults = {
+        correctWords: semanticAnimalsCount, // Primary metric per finalscore.txt
+        totalWords,
+        semanticAnimals: analysis.semanticAnimals,
+        semanticFruits: analysis.semanticFruits,
+        phonemicF: analysis.phonemicF,
+        phonemicA: analysis.phonemicA,
+        phonemicS: analysis.phonemicS,
+        completedAt: new Date()
+      };
+      
+      onComplete(assessmentResults);
+    }
+  }, [phase, onComplete, isSequential, analysis]);
+
   const showToast = (title: string, description: string, variant: string = "default") => {
     setToast({ title, description, variant });
+  };
+
+  const getCurrentPhaseKey = (): keyof TestResults => {
+    switch (phase) {
+      case "semantic-animals": return "semanticAnimals";
+      case "semantic-fruits": return "semanticFruits";
+      case "phonemic-f": return "phonemicF";
+      case "phonemic-a": return "phonemicA";
+      case "phonemic-s": return "phonemicS";
+      default: return "semanticAnimals"; // Default fallback
+    }
   };
 
   const startTest = () => {
@@ -138,12 +175,10 @@ export const VerbalFluencyAssessment = () => {
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
-    recognition.interimResults = true;
+    recognition.interimResults = false; // Set to false for cleaner final results
     recognition.continuous = true;
     recognition.maxAlternatives = 1;
 
-    let finalTranscript = '';
-    const wordsSpoken: WordEntry[] = [];
     let testStart: Date;
 
     recognition.onstart = () => {
@@ -152,132 +187,93 @@ export const VerbalFluencyAssessment = () => {
       setTimeRemaining(60);
       testStart = new Date();
       setTestStartTime(testStart);
-      setStartTime(testStart);
-      
+
       // Clear existing words for this phase
+      const phaseKey = getCurrentPhaseKey();
       setResults(prev => ({
         ...prev,
-        [getCurrentPhaseKey()]: []
+        [phaseKey]: []
       }));
     };
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
+      const transcript = event.results[event.results.length - 1][0].transcript;
+      const words = transcript.trim().toLowerCase().split(/\s+/);
+      const currentTime = new Date();
+      const timeFromStart = currentTime.getTime() - testStart.getTime();
       
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-          
-          // Process words for real-time capture
-          const words = transcript.trim().toLowerCase().split(/\s+/);
-          const currentTime = new Date();
-          const timeFromStart = currentTime.getTime() - testStart.getTime();
-          
-          words.forEach(word => {
-            const cleanWord = word.replace(/[^\w]/g, '');
-            if (cleanWord.length > 1) {
-              const wordEntry = {
-                word: cleanWord,
-                timestamp: currentTime.getTime(),
-                timeFromStart: timeFromStart
-              };
-              wordsSpoken.push(wordEntry);
-              
-              // Update results immediately for real-time display
-              setResults(prev => ({
-                ...prev,
-                [getCurrentPhaseKey()]: [...wordsSpoken]
-              }));
-            }
-          });
+      const newWordEntries: WordEntry[] = [];
 
-          console.log('Words captured so far:', wordsSpoken.length, wordsSpoken); // Debug log
-        } else {
-          interimTranscript += transcript;
+      words.forEach(word => {
+        const cleanWord = word.replace(/[^\w]/g, '');
+        if (cleanWord.length > 1) {
+          newWordEntries.push({
+            word: cleanWord,
+            timestamp: currentTime.getTime(),
+            timeFromStart: timeFromStart
+          });
         }
+      });
+      
+      if (newWordEntries.length > 0) {
+        const phaseKey = getCurrentPhaseKey();
+        setResults(prev => ({
+          ...prev,
+          [phaseKey]: [...prev[phaseKey], ...newWordEntries]
+        }));
       }
     };
-
+    
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
       showToast(
         "Recognition Error",
-        "There was an issue with speech recognition. Please try again.",
+        "There was an issue with speech recognition.",
         "destructive"
       );
     };
 
+    // onend now only handles cleanup if the mic stops unexpectedly
     recognition.onend = () => {
       setIsListening(false);
-      if (isTestActive) {
-        processResults(finalTranscript, wordsSpoken);
-        console.log('Final words for analysis:', wordsSpoken); // Debug log
-      }
     };
 
     recognitionRef.current = recognition;
     recognition.start();
   };
-
+  
   const stopTest = () => {
-    setIsTestActive(false);
-    setIsListening(false);
     if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
+    
+    const currentPhaseKey = getCurrentPhaseKey();
+    const wordsForPhase = results[currentPhaseKey];
+
+    console.log(`Stopping test for ${currentPhaseKey}. Found ${wordsForPhase.length} words to analyze.`);
+
+    if (wordsForPhase.length > 0) {
+      const analysisResult = analyzeWords(wordsForPhase, phase);
+      
+      setAnalysis(prev => ({
+        ...prev,
+        [currentPhaseKey]: analysisResult
+      }));
+      
+      showToast(
+        "Test Complete",
+        `Recorded ${analysisResult.validWords} valid words for this phase.`
+      );
+    }
+
+    setIsTestActive(false);
+    setIsListening(false);
     setHasRecorded(true);
   };
 
-  const updateCurrentPhaseResults = (words: WordEntry[]) => {
-    const phaseKey = getCurrentPhaseKey();
-    setResults(prev => ({
-      ...prev,
-      [phaseKey]: words
-    }));
-    console.log(`Updated ${phaseKey} with ${words.length} words:`, words);
-  };
-
-  const getCurrentPhaseKey = (): keyof TestResults => {
-    switch (phase) {
-      case "semantic-animals": return "semanticAnimals";
-      case "semantic-fruits": return "semanticFruits";
-      case "phonemic-f": return "phonemicF";
-      case "phonemic-a": return "phonemicA";
-      case "phonemic-s": return "phonemicS";
-      default: return "semanticAnimals";
-    }
-  };
-
-  const processResults = (transcript: string, words: WordEntry[]) => {
-    const currentPhaseKey = getCurrentPhaseKey();
-    console.log(`Processing results for ${currentPhaseKey}:`, words);
-    
-    // Make sure words are saved to results
-    setResults(prev => ({
-      ...prev,
-      [currentPhaseKey]: words
-    }));
-    
-    const analysisResult = analyzeWords(words, phase);
-    console.log(`Analysis result for ${currentPhaseKey}:`, analysisResult);
-    
-    setAnalysis(prev => ({
-      ...prev,
-      [currentPhaseKey]: analysisResult
-    }));
-
-    showToast(
-      "Test Complete",
-      `Recorded ${analysisResult.validWords} valid words with ${analysisResult.repetitions} repetitions.`
-    );
-  };
-
-  // Advanced analysis algorithms based on verbal.txt specifications
   const analyzeWords = (words: WordEntry[], testPhase: TestPhase): AnalysisResults => {
     if (words.length === 0) {
       return {
@@ -292,7 +288,6 @@ export const VerbalFluencyAssessment = () => {
       };
     }
 
-    // Basic counts
     const totalWords = words.length;
     const wordCounts = new Map<string, number>();
     let repetitions = 0;
@@ -305,32 +300,26 @@ export const VerbalFluencyAssessment = () => {
 
     const validWords = wordCounts.size;
 
-    // Error detection (basic validation)
     let errors = 0;
-    words.forEach(entry => {
-      if (testPhase.includes("phonemic")) {
-        const targetLetter = phase.split("-")[1].toLowerCase();
-        if (!entry.word.toLowerCase().startsWith(targetLetter)) {
-          errors++;
-        }
-      }
-    });
+    if (testPhase.startsWith("phonemic-")) {
+        const targetLetter = testPhase.split("-")[1].toLowerCase();
+        words.forEach(entry => {
+            if (!entry.word.toLowerCase().startsWith(targetLetter)) {
+                errors++;
+            }
+        });
+    }
 
-    // Clustering analysis (semantic similarity detection)
     const clustering = calculateClustering(words, testPhase);
-
-    // Switching analysis (topic changes)
     const switching = calculateSwitching(words, testPhase);
 
-    // Temporal analysis
     const averageResponseTime = words.length > 1 
       ? words.slice(1).reduce((sum, word, idx) => sum + (word.timeFromStart - words[idx].timeFromStart), 0) / (words.length - 1)
       : 0;
 
-    // Temporal distribution (words per quarter)
     const temporalDistribution = [0, 0, 0, 0];
     words.forEach(word => {
-      const quarter = Math.floor(word.timeFromStart / 15000); // 15-second quarters
+      const quarter = Math.floor(word.timeFromStart / 15000);
       if (quarter < 4) temporalDistribution[quarter]++;
     });
 
@@ -348,25 +337,17 @@ export const VerbalFluencyAssessment = () => {
 
   const calculateClustering = (words: WordEntry[], testPhase: TestPhase): number => {
     if (words.length < 2) return 0;
-
     let clusterCount = 0;
     let currentClusterSize = 1;
-
-    // Simple clustering based on word similarity (first letter for phonemic, semantic categories for semantic)
     for (let i = 1; i < words.length; i++) {
       const prevWord = words[i - 1].word.toLowerCase();
       const currWord = words[i].word.toLowerCase();
-
       let isRelated = false;
-
       if (testPhase.includes("semantic")) {
-        // Semantic clustering (simplified - would need more sophisticated NLP in practice)
         isRelated = areSemanticallySimilar(prevWord, currWord, testPhase);
       } else {
-        // Phonemic clustering (first 2 letters)
         isRelated = prevWord.substring(0, 2) === currWord.substring(0, 2);
       }
-
       if (isRelated) {
         currentClusterSize++;
       } else {
@@ -376,47 +357,38 @@ export const VerbalFluencyAssessment = () => {
         currentClusterSize = 1;
       }
     }
-
     if (currentClusterSize >= 2) {
       clusterCount++;
     }
-
     return clusterCount;
   };
 
   const areSemanticallySimilar = (word1: string, word2: string, testPhase: TestPhase): boolean => {
-    // Simplified semantic similarity - in practice would use word embeddings
     const animalCategories = {
       pets: ["dog", "cat", "bird", "fish", "rabbit", "hamster"],
       wild: ["lion", "tiger", "elephant", "giraffe", "zebra", "rhino"],
       farm: ["cow", "pig", "chicken", "horse", "sheep", "goat"],
       marine: ["whale", "dolphin", "shark", "octopus", "seal", "fish"]
     };
-
     const fruitCategories = {
       citrus: ["orange", "lemon", "lime", "grapefruit", "tangerine"],
       berries: ["strawberry", "blueberry", "raspberry", "blackberry", "cranberry"],
       tropical: ["banana", "pineapple", "mango", "papaya", "coconut"],
       stone: ["peach", "plum", "cherry", "apricot", "nectarine"]
     };
-
     const categories = testPhase.includes("animals") ? animalCategories : fruitCategories;
-
     for (const category of Object.values(categories)) {
       if (category.includes(word1) && category.includes(word2)) {
         return true;
       }
     }
-
     return false;
   };
 
   const calculateSwitching = (words: WordEntry[], testPhase: TestPhase): number => {
     if (words.length < 2) return 0;
-
     let switches = 0;
     let currentCategory = getCategoryForWord(words[0].word, testPhase);
-
     for (let i = 1; i < words.length; i++) {
       const newCategory = getCategoryForWord(words[i].word, testPhase);
       if (newCategory !== currentCategory) {
@@ -424,23 +396,18 @@ export const VerbalFluencyAssessment = () => {
         currentCategory = newCategory;
       }
     }
-
     return switches;
   };
 
   const getCategoryForWord = (word: string, testPhase: TestPhase): string => {
-    // Simplified category detection
     if (testPhase.includes("phonemic")) {
-      return word.substring(0, 2); // First 2 letters
+      return word.substring(0, 2);
     }
-
-    // Semantic categories (simplified)
     const lowerWord = word.toLowerCase();
     if (["dog", "cat", "bird", "fish"].includes(lowerWord)) return "pets";
     if (["lion", "tiger", "elephant"].includes(lowerWord)) return "wild";
     if (["orange", "lemon", "lime"].includes(lowerWord)) return "citrus";
     if (["strawberry", "blueberry", "raspberry"].includes(lowerWord)) return "berries";
-
     return "other";
   };
 
@@ -478,7 +445,6 @@ export const VerbalFluencyAssessment = () => {
     setIsListening(false);
     setIsTestActive(false);
     setTimeRemaining(60);
-    setStartTime(null);
     setTestStartTime(null);
     setHasRecorded(false);
   };
@@ -506,12 +472,11 @@ export const VerbalFluencyAssessment = () => {
 
   const hasCurrentPhaseData = () => {
     const phaseKey = getCurrentPhaseKey();
-    return results[phaseKey].length > 0;
+    return results[phaseKey] && results[phaseKey].length > 0;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-4 right-4 z-50">
           <div className={`p-4 rounded-lg shadow-lg ${
@@ -526,7 +491,6 @@ export const VerbalFluencyAssessment = () => {
       )}
 
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
@@ -540,7 +504,6 @@ export const VerbalFluencyAssessment = () => {
           </span>
         </div>
 
-        {/* Progress */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm mb-6 p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-900">
@@ -559,10 +522,8 @@ export const VerbalFluencyAssessment = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-              {/* Maya Avatar */}
               <div className="flex items-start gap-4 mb-6">
                 <MayaAvatar size="md" />
                 <div className="bg-blue-50 rounded-lg p-4 flex-1">
@@ -572,17 +533,15 @@ export const VerbalFluencyAssessment = () => {
                 </div>
               </div>
 
-              {/* Test Interface */}
               {isTestPhase() && (
                 <div className="space-y-4">
-                  {/* Test Information */}
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">
                         {(() => {
                           const testInfo = getCurrentTestInfo();
                           if (!testInfo) return '';
-                          return 'name' in testInfo ? testInfo.name : testInfo.letter;
+                          return 'name' in testInfo ? testInfo.name : `Letter: ${testInfo.letter}`;
                         })()}
                       </h3>
                       <div className="flex items-center gap-2">
@@ -603,7 +562,6 @@ export const VerbalFluencyAssessment = () => {
                     </div>
                   </div>
 
-                  {/* Recording Controls */}
                   <div className="space-y-3">
                     {!isTestActive ? (
                       <button
@@ -623,7 +581,6 @@ export const VerbalFluencyAssessment = () => {
                       </button>
                     )}
 
-                    {/* Real-time word display */}
                     {isTestActive && hasCurrentPhaseData() && (
                       <div className="p-3 bg-gray-100 rounded-md max-h-40 overflow-y-auto">
                         <h4 className="font-medium text-sm text-gray-700 mb-2">Words captured:</h4>
@@ -640,16 +597,15 @@ export const VerbalFluencyAssessment = () => {
                       </div>
                     )}
 
-                    {/* Redo current test */}
-                    {hasRecorded && hasCurrentPhaseData() && (
+                    {hasRecorded && (
                       <button
                         onClick={() => {
-                          setResults(prev => ({
-                            ...prev,
-                            [getCurrentPhaseKey()]: []
-                          }));
+                          const phaseKey = getCurrentPhaseKey();
+                          setResults(prev => ({ ...prev, [phaseKey]: [] }));
+                          setAnalysis(prev => ({ ...prev, [phaseKey]: undefined! }));
                           setHasRecorded(false);
                           setTimeRemaining(60);
+                          showToast("Ready", "You can now redo this test.", "default");
                         }}
                         className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
@@ -658,11 +614,11 @@ export const VerbalFluencyAssessment = () => {
                       </button>
                     )}
 
-                    {/* Continue to next test */}
                     {!isTestActive && (
                       <button
                         onClick={nextPhase}
-                        className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        disabled={isTestActive}
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400"
                       >
                         <ArrowRight className="w-4 h-4" />
                         {hasCurrentPhaseData() ? "Continue to Next Test" : "Skip This Test"}
@@ -672,7 +628,6 @@ export const VerbalFluencyAssessment = () => {
                 </div>
               )}
 
-              {/* Intro/Instructions */}
               {(phase === "intro" || phase === "instructions") && (
                 <button
                   onClick={nextPhase}
@@ -682,14 +637,11 @@ export const VerbalFluencyAssessment = () => {
                 </button>
               )}
 
-              {/* Results Phase */}
               {phase === "results" && (
                 <div className="space-y-6">
-                  {/* Overall Summary */}
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Verbal Fluency Results</h3>
                     
-                    {/* Semantic Tests */}
                     <div className="mb-4">
                       <h4 className="font-medium text-gray-800 mb-2">Semantic Fluency (Categories)</h4>
                       <div className="grid grid-cols-2 gap-4">
@@ -700,7 +652,7 @@ export const VerbalFluencyAssessment = () => {
                           </div>
                           {analysis.semanticAnimals && (
                             <div className="text-xs text-gray-500">
-                              {analysis.semanticAnimals.repetitions} repetitions, {analysis.semanticAnimals.errors} errors
+                              {analysis.semanticAnimals.repetitions} reps, {analysis.semanticAnimals.errors} errors
                             </div>
                           )}
                         </div>
@@ -711,20 +663,18 @@ export const VerbalFluencyAssessment = () => {
                           </div>
                           {analysis.semanticFruits && (
                             <div className="text-xs text-gray-500">
-                              {analysis.semanticFruits.repetitions} repetitions, {analysis.semanticFruits.errors} errors
+                              {analysis.semanticFruits.repetitions} reps, {analysis.semanticFruits.errors} errors
                             </div>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Phonemic Tests */}
                     <div className="mb-4">
                       <h4 className="font-medium text-gray-800 mb-2">Phonemic Fluency (Letters)</h4>
                       <div className="grid grid-cols-3 gap-4">
-                        {["F", "A", "S"].map((letter, idx) => {
+                        {["F", "A", "S"].map((letter) => {
                           const analysisKey = `phonemic${letter}` as keyof typeof analysis;
-                          const resultKey = `phonemic${letter}` as keyof TestResults;
                           return (
                             <div key={letter} className="bg-white p-3 rounded border">
                               <div className="text-sm text-gray-600">Letter {letter}</div>
@@ -733,7 +683,7 @@ export const VerbalFluencyAssessment = () => {
                               </div>
                               {analysis[analysisKey] && (
                                 <div className="text-xs text-gray-500">
-                                  {analysis[analysisKey].repetitions} reps, {analysis[analysisKey].errors} errors
+                                  {analysis[analysisKey]!.repetitions} reps, {analysis[analysisKey]!.errors} errors
                                 </div>
                               )}
                             </div>
@@ -742,7 +692,6 @@ export const VerbalFluencyAssessment = () => {
                       </div>
                     </div>
 
-                    {/* Advanced Analysis */}
                     <div className="bg-white p-4 rounded border mt-4">
                       <h4 className="font-medium text-gray-800 mb-3">Cognitive Analysis</h4>
                       <div className="grid grid-cols-2 gap-4 text-sm">
@@ -786,7 +735,6 @@ export const VerbalFluencyAssessment = () => {
             </div>
           </div>
 
-          {/* Information Panel */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
               <div className="p-6 border-b border-gray-200">
@@ -820,24 +768,24 @@ export const VerbalFluencyAssessment = () => {
                   <h4 className="font-semibold text-gray-900 mb-2">
                     What we're measuring:
                   </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Language production speed</li>
-                    <li>• Cognitive flexibility</li>
-                    <li>• Executive function</li>
-                    <li>• Semantic memory access</li>
-                    <li>• Phonemic processing</li>
+                  <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li>Language production speed</li>
+                    <li>Cognitive flexibility</li>
+                    <li>Executive function</li>
+                    <li>Semantic memory access</li>
+                    <li>Phonemic processing</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">
                     Test Guidelines:
                   </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• No proper names allowed</li>
-                    <li>• Avoid repetitions</li>
-                    <li>• Speak clearly and steadily</li>
-                    <li>• Don't use word variations (run/running)</li>
-                    <li>• You have 60 seconds per category</li>
+                  <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li>No proper names allowed</li>
+                    <li>Avoid repetitions</li>
+                    <li>Speak clearly and steadily</li>
+                    <li>Don't use word variations (run/running)</li>
+                    <li>You have 60 seconds per category</li>
                   </ul>
                 </div>
               </div>

@@ -9,6 +9,9 @@
 ### 🎬 Video Demonstration  
 **[Watch Full Demo Video →](YOUTUBE_LINK_PLACEHOLDER)**  
 *Comprehensive demonstration of all assessment modules and platform capabilities*
+### 📝 Presentation Slides
+**PPT Google Drive link**: [View Presentation]()
+
 
 ---
 

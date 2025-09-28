@@ -7,7 +7,7 @@
 *Complete visual walkthrough of the application interface, assessment flows, and dashboard features*
 
 ### 🎬 Video Demonstration  
-**[Watch Full Demo Video →](YOUTUBE_LINK_PLACEHOLDER)**  
+**[Watch Full Demo Video →](https://drive.google.com/file/d/1VfTSgx-B3k3PyoK_axzRrsOh0ta2s8jg/view?usp=drive_link)**  
 *Comprehensive demonstration of all assessment modules and platform capabilities*
 ### 📝 Presentation Slides
 **PPT Google Drive link**: [View Presentation](https://drive.google.com/file/d/1cQcFOl8MFlLeeuqNA8azixB1A1Kk13ih/view?usp=share_link)
@@ -15,38 +15,38 @@
 
 ---
 
-## 🧠 Project Overview
+## Project Overview
 
 CogniCare is a comprehensive web-based platform for early detection of cognitive impairment and dementia using scientifically-validated neuropsychological assessments combined with advanced machine learning analysis. The platform provides healthcare professionals with tools to conduct standardized cognitive assessments and analyze language patterns for potential indicators of Alzheimer's disease and related dementias.
 
-## ✨ Key Features
+## Key Features
 
-### 🔬 Comprehensive Assessment Battery
+###  Comprehensive Assessment Battery
 - **Memory Recall Test** - Evaluates short-term and long-term memory with word list exercises
 - **Verbal Fluency Assessment** - Tests language abilities and cognitive flexibility 
 - **Trail Making Test** - Assesses visual attention and executive function
 - **Stroop Color Test** - Measures cognitive inhibition and processing speed
 - **Cookie Theft Picture Description** - Analyzes language and scene description capabilities
 
-### 🤖 AI-Powered Analysis
+### AI-Powered Analysis
 - Advanced NLP models for analyzing speech patterns and linguistic features
 - Machine learning algorithms trained to detect early signs of cognitive impairment
 - Confidence scoring and risk level assessment
 - Clinical interpretation and recommendations
 
-### 📊 Clinical Dashboard
+###  Clinical Dashboard
 - Patient management and assessment tracking
 - Progress monitoring over time
 - Comprehensive reporting and data visualization
 - Secure authentication and authorization
 
-### 🎯 CogniCare Cognitive Composite Score (CCS)
+###  CogniCare Cognitive Composite Score (CCS)
 - Scientifically-validated composite scoring system
 - Population norm-based Z-score calculations
 - Risk stratification (healthy, mild concern, strong indication)
 - Detailed domain-specific analysis
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 cognicare/
@@ -98,7 +98,7 @@ cognicare/
 └── README.md                  # This file
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend Technologies
 - **React 18.3.1** - Modern UI framework with hooks and context
@@ -135,7 +135,7 @@ cognicare/
 - **Prettier** - Code formatting
 - **Git** - Version control system
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Node.js 18+** and npm (for frontend)
@@ -210,7 +210,7 @@ python start.py         # Start development server
 python start.py check   # Verify system requirements
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Environment Variables (.env)
 
@@ -239,7 +239,7 @@ The application uses SQLite by default but can be configured for PostgreSQL:
 DATABASE_URL=postgresql://username:password@localhost/dbname
 ```
 
-## 📊 Assessment Details
+##  Assessment Details
 
 ### 1. Memory Recall Test (10-15 min)
 - **Purpose**: Evaluates immediate and delayed memory recall
@@ -271,7 +271,7 @@ DATABASE_URL=postgresql://username:password@localhost/dbname
 - **Scoring**: Information units and linguistic analysis
 - **Population Norm**: Mean 14.5 ± 3.2 information units
 
-## 🔬 Machine Learning Pipeline
+##  Machine Learning Pipeline
 
 ### NLP Analysis Process
 1. **Text Preprocessing**
@@ -289,7 +289,7 @@ DATABASE_URL=postgresql://username:password@localhost/dbname
    - Lexical diversity and semantic content
    - Grammatical complexity metrics
 
-## 🔒 Security Features
+##  Security Features
 
 - **JWT-based authentication** with secure token handling
 - **Password hashing** using bcrypt with salt
@@ -298,7 +298,7 @@ DATABASE_URL=postgresql://username:password@localhost/dbname
 - **Input validation** using Pydantic schemas
 - **SQL injection protection** via SQLAlchemy ORM
 
-## 📈 API Endpoints
+##  API Endpoints
 
 ### Authentication
 - `POST /auth/register` - User registration
@@ -323,16 +323,14 @@ DATABASE_URL=postgresql://username:password@localhost/dbname
 ### System
 - `GET /` - API health check
 - `GET /health` - Detailed system status
-- `GET /docs` - Interactive API documentation (Swagger UI)
 
-## 🧪 Development Commands
+##  Development Commands
 
 ### Backend Commands
 ```bash
 # Setup and start
 python start.py setup      # Complete environment setup
-python start.py           # Start development server  
-python start.py prod      # Start production server
+python main.py           # Start development server  
 python start.py check     # System health check
 
 # Database management
@@ -350,7 +348,7 @@ npm run preview           # Preview production build
 npm run lint              # Run ESLint checks
 ```
 
-## 👥 User Roles & Permissions
+##  User Roles & Permissions
 
 ### Admin
 - Full system access and configuration
@@ -393,23 +391,13 @@ npm run lint              # Run ESLint checks
 
 n a Pull Request
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
 
-For support and questions:
-- Create an issue in the repository
-- Check the API documentation at http://localhost:8000/docs
-- Review the troubleshooting section above
 
-## 🙏 Acknowledgments
 
-- Built using scientifically-validated neuropsychological assessment protocols
-- Incorporates research-based population norms for cognitive evaluation
-- Uses advanced machine learning techniques for linguistic analysis
-- Designed with healthcare professionals and researchers in mind
 
 ---
 

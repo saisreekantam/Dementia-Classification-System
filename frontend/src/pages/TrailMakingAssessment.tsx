@@ -658,12 +658,12 @@ export const TrailMakingAssessment: React.FC<TrailMakingAssessmentProps> = ({ on
                     Step {currentStep + 1} of 6
                   </span>
                 </div>
-                {isTestActive && (
+                {/* {isTestActive && (
                   <div className="mt-3">
                     <div className="text-sm text-gray-600 mb-1">Next Target:</div>
                     <div className="text-lg font-bold text-blue-600">{currentTarget}</div>
                   </div>
-                )}
+                )} */}
                 {(phase === "part-a" || phase === "part-b") && (
                   <div className="mt-3 text-sm text-gray-600">
                     <div>Errors: {phase === "part-a" ? results.partA.errors : results.partB.errors}</div>

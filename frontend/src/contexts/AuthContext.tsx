@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const { access_token, token_type } = loginResponse.data;
-
+      console.log("Token recieved",access_token)
       if (!access_token) {
         throw new Error('No access token received');
       }

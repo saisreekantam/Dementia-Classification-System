@@ -211,9 +211,9 @@ export const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">0</div>
+              <div className="text-2xl font-bold text-foreground">2</div>
               <p className="text-xs text-muted-foreground">
-                +0 from last week
+                +1 from last week
               </p>
             </CardContent>
           </Card>

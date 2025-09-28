@@ -205,6 +205,7 @@ const ComprehensiveAssessment: React.FC = () => {
   const startAssessment = () => {
     setStartTime(new Date());
     setCurrentStep('assessment');
+    setCurrentAssessmentIndex(0);
   };
 
   // Go back to previous assessment
@@ -278,7 +279,7 @@ const ComprehensiveAssessment: React.FC = () => {
               <div className="mt-8 p-6 bg-blue-50 rounded-lg">
                 <h3 className="font-semibold text-blue-900 mb-2">Important Information</h3>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Total estimated time: 35-50 minutes</li>
+                  <li>• Total estimated time: 15-20 minutes</li>
                   <li>• Find a quiet environment free from distractions</li>
                   <li>• You can take short breaks between tests if needed</li>
                   <li>• This is a screening tool, not a diagnostic test</li>
@@ -288,7 +289,7 @@ const ComprehensiveAssessment: React.FC = () => {
 
               <div className="mt-6 text-center">
                 <Button onClick={startAssessment} size="lg" className="px-8">
-                  Begin Assessment Battery
+                  Begin Comprehensive Assesment
                 </Button>
               </div>
             </CardContent>
@@ -300,7 +301,32 @@ const ComprehensiveAssessment: React.FC = () => {
 
   if (currentStep === 'assessment') {
     const CurrentAssessmentComponent = currentAssessment.component;
-    
+    const visibleScores = assessmentScores.filter(
+      score => completedAssessments.has(score.testId)
+    );
+    const interimComposite: CompositeScore = {
+      ccs: visibleScores.reduce((total, score) => {
+        const assessment = ASSESSMENTS.find(a => a.id === score.testId);
+        if (!assessment) return total;
+        return total + (score.zScore * assessment.weight);
+      }, 0),
+      interpretation:
+        visibleScores.reduce((total, score) => {
+          const assessment = ASSESSMENTS.find(a => a.id === score.testId);
+          if (!assessment) return total;
+          return total + (score.zScore * assessment.weight);
+        }, 0) > 0.0
+          ? 'healthy'
+          : visibleScores.reduce((total, score) => {
+              const assessment = ASSESSMENTS.find(a => a.id === score.testId);
+              if (!assessment) return total;
+              return total + (score.zScore * assessment.weight);
+            }, 0) >= -1.5
+          ? 'mild'
+          : 'strong',
+      individualScores: visibleScores,
+      completedAt: new Date(),
+    };
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         {/* Progress Header */}
@@ -365,6 +391,14 @@ const ComprehensiveAssessment: React.FC = () => {
             isSequential={true}
           />
         </div>
+        {visibleScores.length > 0 && (
+          <div className="max-w-4xl mx-auto my-8">
+            <CogniCareResults
+              compositeScore={interimComposite}
+              onRestart={restartAssessment}
+            />
+          </div>
+        )}
       </div>
     );
   }

@@ -29,10 +29,10 @@ interface MemoryAssessmentProps {
 
 export const MemoryAssessment: React.FC<MemoryAssessmentProps> = ({ onComplete, isSequential = false }) => {
   const [phase, setPhase] = useState<AssessmentPhase>(
-    () => (localStorage.getItem("memoryPhase") as AssessmentPhase) || "intro"
+   "intro"
   );
   const [currentStep, setCurrentStep] = useState(
-    () => Number(localStorage.getItem("memoryStep")) || 0
+     0
   );
   const [isListening, setIsListening] = useState(false);
   const [scores, setScores] = useState({
@@ -169,28 +169,46 @@ export const MemoryAssessment: React.FC<MemoryAssessmentProps> = ({ onComplete, 
         }
       }
 
-      const fullText = (finalTranscript + interimTranscript).toLowerCase().trim();
-      if (fullText) {
-        // Update local copy
-        if (phase === "immediate-recall") {
-          finalResults.immediateRecall = fullText.split(/\s+/);
-          setInterimWords(fullText.split(/\s+/));
-        } else if (phase === "distraction") {
-          const nums = fullText
-            .split(/\s+/)
-            .map((w) => numberMap[w] ?? w)
-            .filter(Boolean);
-          finalResults.distractionNumbers = nums.map(String);
-          setInterimWords(nums.map(String));
-        } else if (phase === "delayed-recall") {
-          finalResults.delayedRecall = fullText.split(/\s+/);
-          setInterimWords(fullText.split(/\s+/));
-        }
+    const fullText = (finalTranscript + interimTranscript).toLowerCase().trim();
+    if (fullText) {
+      if (phase === "immediate-recall") {
+        const updatedWords = fullText.split(/\s+/);
+        finalResults.immediateRecall = updatedWords;
 
-        // Update React state
-        setResults(finalResults);
+        setInterimWords(updatedWords);
+        setResults(prev => ({
+          ...prev,
+          immediateRecall: updatedWords
+        }));
+
+      } else if (phase === "distraction") {
+        const nums = fullText
+          .split(/\s+/)
+          .map((w) => numberMap[w] ?? w)
+          .filter(Boolean)
+          .map(String);
+
+        finalResults.distractionNumbers = nums;
+
+        setInterimWords(nums);
+        setResults(prev => ({
+          ...prev,
+          distractionNumbers: nums
+        }));
+
+      } else if (phase === "delayed-recall") {
+        const updatedWords = fullText.split(/\s+/);
+        finalResults.delayedRecall = updatedWords;
+
+        setInterimWords(updatedWords);
+        setResults(prev => ({
+          ...prev,
+          delayedRecall: updatedWords
+        }));
       }
-    };
+    }
+
+  }
 
     recognition.onend = () => {
       setIsListening(false);

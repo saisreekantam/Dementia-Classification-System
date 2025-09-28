@@ -226,6 +226,11 @@ export const VerbalFluencyAssessment: React.FC<VerbalFluencyAssessmentProps> = (
     
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
+      if (isTestActive && timeRemaining > 0) {
+        console.log("Starting Again")
+        recognition.start();
+        setIsListening(true);
+      }
       showToast(
         "Recognition Error",
         "There was an issue with speech recognition.",
@@ -236,6 +241,11 @@ export const VerbalFluencyAssessment: React.FC<VerbalFluencyAssessmentProps> = (
     // onend now only handles cleanup if the mic stops unexpectedly
     recognition.onend = () => {
       setIsListening(false);
+    if (isTestActive && timeRemaining > 0) {
+      console.log("Starting Again")
+      recognition.start();
+      setIsListening(true);
+    }
     };
 
     recognitionRef.current = recognition;

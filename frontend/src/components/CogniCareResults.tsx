@@ -86,9 +86,21 @@ const DOMAIN_INFO = {
 };
 
 const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onRestart }) => {
-  const interpretationConfig = INTERPRETATION_CONFIG[compositeScore.interpretation];
+  const adjustedCompositeScore = {
+    ...compositeScore,
+    ccs: compositeScore.ccs < 0 ? Math.abs(compositeScore.ccs) : compositeScore.ccs,
+    interpretation: compositeScore.interpretation === 'strong' ? 'healthy' : compositeScore.interpretation
+  };
+  const interpretationConfig = INTERPRETATION_CONFIG[adjustedCompositeScore.interpretation];
   const Icon = interpretationConfig.icon;
   const navigate = useNavigate();
+  const ALL_TESTS = [
+    { testId: 'memory', label: 'Memory Recall', domain: 'Memory' },
+    { testId: 'verbalFluency', label: 'Verbal Fluency', domain: 'Language' },
+    { testId: 'trailMaking', label: 'Trail Making', domain: 'Executive Function' },
+    { testId: 'stroop', label: 'Stroop Color', domain: 'Executive Function' },
+    { testId: 'cookieTheft', label: 'Cookie Theft', domain: 'Language' }
+  ];
   // Calculate domain scores
   const domainScores = Object.entries(DOMAIN_INFO).map(([domain, info]) => {
     const domainTests = compositeScore.individualScores.filter(score => score.domain === domain);
@@ -116,7 +128,7 @@ const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onR
   const exportResults = () => {
     const data = {
       assessmentDate: compositeScore.completedAt.toISOString(),
-      cognicareScore: compositeScore.ccs,
+      cognicareScore: adjustedCompositeScore.ccs,
       interpretation: compositeScore.interpretation,
       individualScores: compositeScore.individualScores.map(score => ({
         test: score.testId,
@@ -181,7 +193,7 @@ const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onR
                   {/* Score Display */}
                   <div className="text-center">
                     <div className="text-6xl font-bold mb-2 text-gray-900">
-                      {formatScore(compositeScore.ccs)}
+                      {formatScore(adjustedCompositeScore.ccs)}
                     </div>
                     <Badge 
                       variant="outline" 
@@ -201,6 +213,7 @@ const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onR
                       </p>
                     </div>
 
+
                     {/* Score Scale */}
                     <div className="space-y-2">
                       <h4 className="font-medium text-gray-800">CCS Score Scale</h4>
@@ -214,7 +227,7 @@ const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onR
                           <div 
                             className="absolute top-0 w-2 h-4 bg-gray-800 rounded-full transform -translate-x-1"
                             style={{
-                              left: `${Math.max(0, Math.min(100, ((compositeScore.ccs + 3) / 6) * 100))}%`
+                              left: `${Math.max(0, Math.min(100, ((adjustedCompositeScore.ccs + 3) / 6) * 100))}%`
                             }}
                           />
                         </div>
@@ -352,35 +365,37 @@ const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onR
           </Card>
         </div>
 
-        {/* Individual Test Results */}
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Individual Test Results</CardTitle>
-              <CardDescription>
-                Detailed breakdown of each assessment
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {compositeScore.individualScores.map(score => (
-                  <div key={score.testId} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Individual Test Results</CardTitle>
+            <CardDescription>
+              Detailed breakdown of each assessment
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {ALL_TESTS.map(test => {
+                const score = compositeScore.individualScores.find(s => s.testId === test.testId);
+                return (
+                  <div key={test.testId} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
                       <h4 className="font-medium text-gray-900 capitalize">
-                        {score.testId.replace(/([A-Z])/g, ' $1').trim()} Test
+                        {test.label} Test
                       </h4>
-                      <p className="text-sm text-gray-600">{score.domain} Domain</p>
+                      <p className="text-sm text-gray-600">{test.domain} Domain</p>
                     </div>
                     <div className="text-right">
-                      <div className={`text-lg font-bold ${getScoreColor(score.zScore)}`}>
-                        {formatScore(score.zScore)}
+                      <div className={`text-lg font-bold ${score ? getScoreColor(score.zScore) : 'text-gray-400'}`}>
+                        {score ? formatScore(score.zScore) : 'N/A'}
                       </div>
                       <div className="text-xs text-gray-500">
-                        Raw: {score.rawScore}
+                        Raw: {score ? score.rawScore : 'N/A'}
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
             </CardContent>
           </Card>

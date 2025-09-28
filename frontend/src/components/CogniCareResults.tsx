@@ -86,11 +86,12 @@ const DOMAIN_INFO = {
 };
 
 const CogniCareResults: React.FC<CogniCareResultsProps> = ({ compositeScore, onRestart }) => {
-  const adjustedCompositeScore = {
-    ...compositeScore,
-    ccs: compositeScore.ccs < 0 ? Math.abs(compositeScore.ccs) : compositeScore.ccs,
-    interpretation: compositeScore.interpretation === 'strong' ? 'healthy' : compositeScore.interpretation
-  };
+  // const adjustedCompositeScore = {
+  //   ...compositeScore,
+  //   ccs: compositeScore.ccs < 0 ? Math.abs(compositeScore.ccs) : compositeScore.ccs,
+  //   interpretation: compositeScore.interpretation === 'strong' ? 'healthy' : compositeScore.interpretation
+  // };
+  const adjustedCompositeScore = compositeScore;
   const interpretationConfig = INTERPRETATION_CONFIG[adjustedCompositeScore.interpretation];
   const Icon = interpretationConfig.icon;
   const navigate = useNavigate();

@@ -10,7 +10,7 @@
 **[Watch Full Demo Video →](YOUTUBE_LINK_PLACEHOLDER)**  
 *Comprehensive demonstration of all assessment modules and platform capabilities*
 ### 📝 Presentation Slides
-**PPT Google Drive link**: [View Presentation]()
+**PPT Google Drive link**: [View Presentation](https://drive.google.com/file/d/1cQcFOl8MFlLeeuqNA8azixB1A1Kk13ih/view?usp=share_link)
 
 
 ---

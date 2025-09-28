@@ -3,7 +3,7 @@
 ## 🎥 Live Demo & Media
 
 ### 📱 Application Screenshots
-**[View Webapp Screenshots & Interface Images →]((https://drive.google.com/drive/folders/1A6JuuNhLb6qfsO8PvLAqd7NuXf6xitbM?usp=sharing))**  
+**[View Webapp Screenshots & Interface Images →](https://drive.google.com/drive/folders/1A6JuuNhLb6qfsO8PvLAqd7NuXf6xitbM?usp=sharing)**  
 *Complete visual walkthrough of the application interface, assessment flows, and dashboard features*
 
 ### 🎬 Video Demonstration  

@@ -1,15 +1,15 @@
 # CogniCare - Dementia Detection & Cognitive Assessment Platform
 
-## 🎥 Live Demo & Media
+##  Live Demo & Media
 
-### 📱 Application Screenshots
+###  Application Screenshots
 **[View Webapp Screenshots & Interface Images →](https://drive.google.com/drive/folders/1A6JuuNhLb6qfsO8PvLAqd7NuXf6xitbM?usp=sharing)**  
 *Complete visual walkthrough of the application interface, assessment flows, and dashboard features*
 
-### 🎬 Video Demonstration  
+###  Video Demonstration  
 **[Watch Full Demo Video →](https://drive.google.com/file/d/1VfTSgx-B3k3PyoK_axzRrsOh0ta2s8jg/view?usp=drive_link)**  
 *Comprehensive demonstration of all assessment modules and platform capabilities*
-### 📝 Presentation Slides
+###  Presentation Slides
 **PPT Google Drive link**: [View Presentation](https://drive.google.com/file/d/1cQcFOl8MFlLeeuqNA8azixB1A1Kk13ih/view?usp=share_link)
 
 
@@ -365,7 +365,7 @@ npm run lint              # Run ESLint checks
 - Export data for research purposes
 - Statistical analysis and reporting
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 

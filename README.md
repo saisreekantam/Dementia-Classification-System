@@ -336,7 +336,7 @@ python start.py check     # System health check
 # Database management
 python init_db.py init    # Initialize database tables
 python init_db.py demo    # Create demo data
-python init_db.py reset   # Reset database (⚠️ deletes all data)
+python init_db.py reset   # Reset database ( deletes all data)
 ```
 
 ### Frontend Commands
@@ -389,16 +389,8 @@ npm run lint              # Run ESLint checks
 - Check file permissions and formats
 - Verify scikit-learn version compatibility
 
-n a Pull Request
-
 ##  License
-
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-
-
-
-
 ---
 
 **Note**: This application is designed for research and clinical assessment purposes. It should be used alongside comprehensive clinical evaluation and should not replace professional medical diagnosis.

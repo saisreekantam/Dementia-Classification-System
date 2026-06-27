@@ -17,7 +17,7 @@
 
 ## Project Overview
 
-CogniCare is a comprehensive web-based platform for early detection of cognitive impairment and dementia using scientifically-validated neuropsychological assessments combined with advanced machine learning analysis. The platform provides healthcare professionals with tools to conduct standardized cognitive assessments and analyze language patterns for potential indicators of Alzheimer's disease and related dementias.
+CogniCare is a comprehensive web-based platform for early detection of cognitive impairment and dementia using scientifically-validated neuropsychological assessments combined with advanced machine learning analysis. The platform provides healthcare professionals with tools to conduct standardized cognitive assessments and analyze language patterns for potential indicators of Alzheimer's disease and related dementias. 
 
 ## Key Features
 
